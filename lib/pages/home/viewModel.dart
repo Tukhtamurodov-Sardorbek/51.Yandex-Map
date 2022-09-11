@@ -198,14 +198,23 @@ class HomeChangeNotifier extends ChangeNotifier {
       result.routes!.asMap().forEach(
             (i, route) {
               final time = DateTime.now();
-                _mapObjects.add(
-                  PolylineMapObject(
-                    mapId: MapObjectId('polyline $time'),
-                    polyline: Polyline(points: route.geometry),
-                    strokeColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
-                    strokeWidth: 3,
-                  ),
-                );
+              bool isDeleted = false;
+              final polyline = PolylineMapObject(
+                mapId: MapObjectId('polyline $time'),
+                polyline: Polyline(points: route.geometry),
+                strokeColor: Colors.cyanAccent,
+                outlineColor: Colors.black,
+                outlineWidth: 2,
+                strokeWidth: 3,
+                onTap: (PolylineMapObject self, Point point){
+                  isDeleted = true;
+                  _mapObjects.removeWhere((obj) => obj.mapId == self.mapId);
+                  notifyListeners();
+                },
+              );
+              if(!isDeleted){
+                _mapObjects.add(polyline);
+              }
             },
       );
       notifyListeners();
