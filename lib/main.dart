@@ -25,7 +25,7 @@ Future<void> main() async{
           primarySwatch: Colors.amber,
           brightness: Brightness.dark,
         ),
-        home: HomeView(),
+        home: const HomeView(),
       ),
     ),
   );

@@ -16,15 +16,9 @@ class HomeChangeNotifier extends ChangeNotifier {
   List<MapObject> get markers => _markers;
   int get markerIdCounter => _markerIdCounter;
 
-  set mapController(YandexMapController ctr){
+  set mapController(YandexMapController ctr) {
     _mapController = ctr;
     notifyListeners();
-  }
-  set markerIdCounter(int value){
-    if(_markerIdCounter != value){
-      _markerIdCounter = value;
-      notifyListeners();
-    }
   }
 
   /// methods
@@ -41,24 +35,25 @@ class HomeChangeNotifier extends ChangeNotifier {
       if (permission == LocationPermission.denied) {
         return Future.error('Location permissions are denied');
       }
-    }
-    else if (permission == LocationPermission.deniedForever) {
+    } else if (permission == LocationPermission.deniedForever) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.deniedForever) {
-        return Future.error('Location permissions are permanently denied, we cannot request permissions.');
+        return Future.error(
+            'Location permissions are permanently denied, we cannot request permissions.');
       }
     }
 
-    final locator =  await Geolocator.getCurrentPosition(
+    final locator = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.best,
     );
     return locator;
   }
 
-  getUserCurrentPosition(BuildContext context) async {
+  Future<Point?> getUserPosition(BuildContext context) async {
     try {
       final position = await getGeoLocationPosition();
-      debugPrint('\n\t User\'s location: (${position.latitude}, ${position.longitude})');
+      debugPrint(
+          '\n\t User\'s location: (${position.latitude}, ${position.longitude})');
       return Point(latitude: position.latitude, longitude: position.longitude);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -80,9 +75,10 @@ class HomeChangeNotifier extends ChangeNotifier {
         ),
       );
     }
+    return null;
   }
 
-  Future<void> gotoSearchedPlace({required Point position, double zoom = 18.0, bool putMarker = true}) async {
+  Future<void> gotoPlace({required Point position, double zoom = 18.0, bool putMarker = true}) async {
     mapController.moveCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
@@ -112,7 +108,29 @@ class HomeChangeNotifier extends ChangeNotifier {
     );
 
     markers.add(marker);
-    markerIdCounter++;
+    _markerIdCounter++;
     notifyListeners();
+  }
+
+  Future<void> onFloatingActionButtonPressed(BuildContext context) async {
+    Point? position = await getUserPosition(context);
+    if (position != null) {
+      gotoPlace(position: position);
+    }
+
+    // if(await Permission.location.request().isGranted){
+    //   final mediaQuery = MediaQuery.of(context);
+    //   final height = mapKey.currentContext!.size!.height * mediaQuery.devicePixelRatio;
+    //   final width = mapKey.currentContext!.size!.width * mediaQuery.devicePixelRatio;
+    //
+    //   await mapController.toggleUserLayer(
+    //       visible: true,
+    //       autoZoomEnabled: true,
+    //       anchor: UserLocationAnchor(
+    //           course: Offset(0.5 * height, 0.5 * width),
+    //           normal: Offset(0.5 * height, 0.5 * width)
+    //       )
+    //   );
+    // }
   }
 }
