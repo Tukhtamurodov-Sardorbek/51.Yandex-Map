@@ -12,15 +12,21 @@ class HomeChangeNotifier extends ChangeNotifier {
   final List<Point> _markersPoints = [];
   int _markerIdCounter = 1;
   int _polylineIdCounter = 1;
+  bool _isMarkerEnabled = false;
 
   /// getters & setters
   YandexMapController get mapController => _mapController;
   List<MapObject> get mapObjects => _mapObjects;
   int get markerIdCounter => _markerIdCounter;
   int get polylineIdCounter => _polylineIdCounter;
+  bool get isMarkerEnabled => _isMarkerEnabled;
 
   set mapController(YandexMapController ctr) {
     _mapController = ctr;
+    notifyListeners();
+  }
+  set isMarkerEnabled(bool value) {
+    _isMarkerEnabled = value;
     notifyListeners();
   }
 

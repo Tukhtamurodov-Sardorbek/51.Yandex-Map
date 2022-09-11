@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandexmap/pages/home/viewModel.dart';
@@ -29,7 +30,9 @@ class HomeView extends ConsumerWidget {
               read.mapController = yandexMapController;
             },
             onMapTap: (Point point) {
-              read.setMarker(point: point);
+              read.isMarkerEnabled
+                  ? read.setMarker(point: point)
+                  : null;
             },
 
             onUserLocationAdded: (UserLocationView view) async {
@@ -66,6 +69,17 @@ class HomeView extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                IconButton(
+                  onPressed: () async {
+                    read.isMarkerEnabled = !read.isMarkerEnabled;
+                  },
+                  icon: Icon(
+                    read.isMarkerEnabled ? Icons.location_off_outlined : Icons.location_on_outlined,
+                    color: Colors.black,
+                    size: 40,
+                  ),
+                ),
+                const SizedBox(height: 20),
                 IconButton(
                   onPressed: () async {
                     read.onFloatingActionButtonPressed(context);
