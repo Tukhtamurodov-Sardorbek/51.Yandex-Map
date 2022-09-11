@@ -15,61 +15,49 @@ class HomeView extends ConsumerWidget {
     final read = ref.read(homeChangeNotifier);
 
     return Scaffold(
-      body: Stack(
-        children: [
-          YandexMap(
-            key: mapKey,
-            mapObjects: watch.mapObjects,
-            // nightModeEnabled: true,
-            logoAlignment: const MapAlignment(
-              horizontal: HorizontalAlignment.right,
-              vertical: VerticalAlignment.bottom,
-            ),
+      body: YandexMap(
+        key: mapKey,
+        mapObjects: watch.mapObjects,
+        // nightModeEnabled: true,
+        logoAlignment: const MapAlignment(
+          horizontal: HorizontalAlignment.right,
+          vertical: VerticalAlignment.bottom,
+        ),
 
-            onMapCreated: (YandexMapController yandexMapController) async {
-              read.mapController = yandexMapController;
-            },
-            onMapTap: (Point point) {
-              read.setMarker(point: point);
-            },
+        onMapCreated: (YandexMapController yandexMapController) async {
+          read.mapController = yandexMapController;
+        },
+        onMapTap: (Point point) {
+          read.setMarker(point: point);
+        },
 
-            onUserLocationAdded: (UserLocationView view) async {
-              return view.copyWith(
-                  pin: view.pin.copyWith(
-                    icon: PlacemarkIcon.single(
-                      PlacemarkIconStyle(
-                        scale: 0.2,
-                        image: BitmapDescriptor.fromAssetImage(
-                          'assets/icons/pin.png',
-                        ),
-                      ),
+        onUserLocationAdded: (UserLocationView view) async {
+          return view.copyWith(
+              pin: view.pin.copyWith(
+                icon: PlacemarkIcon.single(
+                  PlacemarkIconStyle(
+                    scale: 0.2,
+                    image: BitmapDescriptor.fromAssetImage(
+                      'assets/icons/pin.png',
                     ),
                   ),
-                  arrow: view.arrow.copyWith(
-                    icon: PlacemarkIcon.single(
-                      PlacemarkIconStyle(
-                        scale: 0.5,
-                        image: BitmapDescriptor.fromAssetImage(
-                          'assets/icons/arrow.png',
-                        ),
-                      ),
+                ),
+              ),
+              arrow: view.arrow.copyWith(
+                icon: PlacemarkIcon.single(
+                  PlacemarkIconStyle(
+                    scale: 0.5,
+                    image: BitmapDescriptor.fromAssetImage(
+                      'assets/icons/arrow.png',
                     ),
                   ),
-                  accuracyCircle: view.accuracyCircle.copyWith(
-                    strokeColor: Colors.orange,
-                    fillColor: Colors.amberAccent.withOpacity(0.5),
-                  ));
-            },
-          ),
-
-          Positioned(
-            right: 0.0,
-            bottom: 200,
-            child: IconButton(
-              icon: Icons.draw,
-            ),
-          )
-        ],
+                ),
+              ),
+              accuracyCircle: view.accuracyCircle.copyWith(
+                strokeColor: Colors.orange,
+                fillColor: Colors.amberAccent.withOpacity(0.5),
+              ));
+        },
       ),
 
       floatingActionButton: Container(
@@ -88,13 +76,11 @@ class HomeView extends ConsumerWidget {
             ),
             IconButton(
               onPressed: () async {
-                read.drawPolyline(
-                  point1: const Point(latitude: 59.945933, longitude: 30.320045),
-                  point2: const Point(latitude: 61.823618, longitude: 56.823571),
-                );
+                read.drawPolyline(context);
               },
               icon: const Icon(
                 Icons.polyline,
+                color: Colors.black,
                 size: 50,
               ),
             ),

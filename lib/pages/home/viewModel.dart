@@ -59,26 +59,30 @@ class HomeChangeNotifier extends ChangeNotifier {
           '\n\t User\'s location: (${position.latitude}, ${position.longitude})');
       return Point(latitude: position.latitude, longitude: position.longitude);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          elevation: 10,
-          shape: const StadiumBorder(),
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(milliseconds: 2500),
-          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          content: Text(
-            e.toString(),
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
+     showSnackBar(context, e.toString());
     }
     return null;
+  }
+
+  void showSnackBar(BuildContext context, String txt){
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        elevation: 10,
+        shape: const StadiumBorder(),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(milliseconds: 2500),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        content: Text(
+          txt,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
   }
 
   Future<void> gotoPlace({required Point position, double zoom = 18.0, bool putMarker = true}) async {
@@ -100,7 +104,10 @@ class HomeChangeNotifier extends ChangeNotifier {
       mapId: MapObjectId('marker_$markerIdCounter'),
       point: point,
       opacity: 0.7,
-      onTap: (PlacemarkMapObject self, Point point) {},
+      onTap: (PlacemarkMapObject self, Point point) {
+        _mapObjects.removeWhere((obj) => obj.mapId == self.mapId);
+        notifyListeners();
+      },
       icon: PlacemarkIcon.single(
         PlacemarkIconStyle(
           scale: 0.2,
@@ -110,7 +117,7 @@ class HomeChangeNotifier extends ChangeNotifier {
       ),
     );
 
-    _mapObjects.add(marker);
+    _mapObjects.insert(0, marker);
     _markersPoints.add(marker.point);
     _markerIdCounter++;
     notifyListeners();
@@ -138,26 +145,32 @@ class HomeChangeNotifier extends ChangeNotifier {
     // }
   }
 
-  Future<void> drawPolyline({required Point point1, required Point point2}) async{
-    final polyline = PolylineMapObject(
-      mapId: MapObjectId('polyline_$polylineIdCounter'),
-      polyline: Polyline(points: [point1, point2]),
-      // polyline: Polyline(points: _markersPoints),
-      strokeColor: Colors.amberAccent,
-      strokeWidth: 7.5,
-      outlineColor: Colors.orange,
-      outlineWidth: 2.0,
-      turnRadius: 10.0,
-      arcApproximationStep: 1.0,
-      gradientLength: 1.0,
-      isInnerOutlineEnabled: true,
-      onTap: (PolylineMapObject self, Point point){
-        mapObjects.removeWhere((obj) => obj.mapId == self.mapId);
-      },
-    );
+  // {required Point point1, required Point point2}
+  Future<void> drawPolyline(BuildContext context) async{
+    if(_markersPoints.length >= 2){
+      final polyline = PolylineMapObject(
+        mapId: MapObjectId('polyline_$polylineIdCounter'),
+        // polyline: Polyline(points: [point1, point2]),
+        polyline: Polyline(points: _markersPoints),
+        strokeColor: Colors.amberAccent,
+        strokeWidth: 7.5,
+        outlineColor: Colors.orange,
+        outlineWidth: 2.0,
+        turnRadius: 10.0,
+        arcApproximationStep: 1.0,
+        gradientLength: 1.0,
+        isInnerOutlineEnabled: true,
+        onTap: (PolylineMapObject self, Point point){
+          _mapObjects.removeWhere((obj) => obj.mapId == self.mapId);
+          notifyListeners();
+        },
+      );
 
-    _mapObjects.add(polyline);
-    _polylineIdCounter++;
-    notifyListeners();
+      _mapObjects.add(polyline);
+      _polylineIdCounter++;
+      notifyListeners();
+    }else{
+      showSnackBar(context, 'There should be at least two points to draw a polyline');
+    }
   }
 }
