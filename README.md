@@ -1,16 +1,7 @@
-# yandexmap
+# Yandex Map
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Kartaga bosilsa marker qo'yiladi (soni checklanmagan)
+- Marker ustiga bosilsa o'chadi
+- Location Button bosilganda foydalanuvchining joylashuvi ko'rsatiladi va marker qo'yiladi
+- Polyline Button bosilganda kartada mavjud bo'lgan barcha markerlar orqali poliliniya chiziladi
+- Polyline ustiga bosilsa o'chadi

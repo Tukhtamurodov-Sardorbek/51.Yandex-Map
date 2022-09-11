@@ -110,7 +110,7 @@ class HomeChangeNotifier extends ChangeNotifier {
       },
       icon: PlacemarkIcon.single(
         PlacemarkIconStyle(
-          scale: 0.2,
+          scale: 0.1,
           image: BitmapDescriptor.fromAssetImage('assets/icons/pin.png'),
           // rotationType: RotationType.rotate
         ),

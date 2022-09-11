@@ -3,10 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yandexmap/pages/home/view.dart';
 
-import 'package:permission_handler/permission_handler.dart';
-import 'package:yandex_mapkit/yandex_mapkit.dart';
-
-
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -17,15 +13,11 @@ Future<void> main() async{
   ]);
 
   runApp(
-    ProviderScope(
+    const ProviderScope(
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Yandex Map',
-        theme: ThemeData(
-          primarySwatch: Colors.amber,
-          brightness: Brightness.dark,
-        ),
-        home: const HomeView(),
+        home: HomeView(),
       ),
     ),
   );
