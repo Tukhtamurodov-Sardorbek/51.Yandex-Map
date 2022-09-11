@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -11,15 +12,15 @@ class HomeChangeNotifier extends ChangeNotifier {
   final List<MapObject> _mapObjects = [];
   final List<Point> _markersPoints = [];
   int _markerIdCounter = 1;
-  int _polylineIdCounter = 1;
   bool _isMarkerEnabled = false;
+  bool _isPolylineEnabled = false;
 
   /// getters & setters
   YandexMapController get mapController => _mapController;
   List<MapObject> get mapObjects => _mapObjects;
   int get markerIdCounter => _markerIdCounter;
-  int get polylineIdCounter => _polylineIdCounter;
   bool get isMarkerEnabled => _isMarkerEnabled;
+  bool get isPolylineEnabled => _isPolylineEnabled;
 
   set mapController(YandexMapController ctr) {
     _mapController = ctr;
@@ -27,6 +28,10 @@ class HomeChangeNotifier extends ChangeNotifier {
   }
   set isMarkerEnabled(bool value) {
     _isMarkerEnabled = value;
+    notifyListeners();
+  }
+  set isPolylineEnabled(bool value) {
+    _isPolylineEnabled = value;
     notifyListeners();
   }
 
@@ -112,6 +117,7 @@ class HomeChangeNotifier extends ChangeNotifier {
       opacity: 0.7,
       onTap: (PlacemarkMapObject self, Point point) {
         _mapObjects.removeWhere((obj) => obj.mapId == self.mapId);
+        _markersPoints.removeWhere((element) => element == self.point);
         notifyListeners();
       },
       icon: PlacemarkIcon.single(
@@ -129,7 +135,7 @@ class HomeChangeNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> onFloatingActionButtonPressed(BuildContext context) async {
+  Future<void> onLocationPressed(BuildContext context) async {
     Point? position = await getUserPosition(context);
     if (position != null) {
       gotoPlace(position: position);
@@ -154,26 +160,54 @@ class HomeChangeNotifier extends ChangeNotifier {
   // {required Point point1, required Point point2}
   Future<void> drawPolyline(BuildContext context) async{
     if(_markersPoints.length >= 2){
-      final polyline = PolylineMapObject(
-        mapId: MapObjectId('polyline_$polylineIdCounter'),
-        // polyline: Polyline(points: [point1, point2]),
-        polyline: Polyline(points: _markersPoints),
-        strokeColor: Colors.amberAccent,
-        strokeWidth: 7.5,
-        outlineColor: Colors.orange,
-        outlineWidth: 2.0,
-        turnRadius: 10.0,
-        arcApproximationStep: 1.0,
-        gradientLength: 1.0,
-        isInnerOutlineEnabled: true,
-        onTap: (PolylineMapObject self, Point point){
-          _mapObjects.removeWhere((obj) => obj.mapId == self.mapId);
-          notifyListeners();
-        },
+      print('Markers(${_markersPoints.length}: $_markersPoints');
+      final between = _markersPoints.getRange(1, _markersPoints.length - 1);
+      // final polyline = PolylineMapObject(
+      //   mapId: MapObjectId('polyline_$polylineIdCounter'),
+      //   // polyline: Polyline(points: [point1, point2]),
+      //   polyline: Polyline(points: _markersPoints),
+      //   strokeColor: Colors.amberAccent,
+      //   strokeWidth: 7.5,
+      //   outlineColor: Colors.orange,
+      //   outlineWidth: 2.0,
+      //   turnRadius: 10.0,
+      //   arcApproximationStep: 1.0,
+      //   gradientLength: 1.0,
+      //   isInnerOutlineEnabled: true,
+      //   onTap: (PolylineMapObject self, Point point){
+      //     _mapObjects.removeWhere((obj) => obj.mapId == self.mapId);
+      //     notifyListeners();
+      //   },
+      // );
+
+      var sessionResult = YandexDriving.requestRoutes(
+          points: [
+            RequestPoint(point: _markersPoints.first, requestPointType: RequestPointType.wayPoint),
+            ...between.map((e) => RequestPoint(point: e, requestPointType: RequestPointType.viaPoint)).toList(),
+            RequestPoint(point: _markersPoints.last, requestPointType: RequestPointType.wayPoint),
+          ],
+          drivingOptions: const DrivingOptions(
+              initialAzimuth: 0,
+              routesCount: 5,
+              avoidTolls: true,
+          )
       );
 
-      _mapObjects.add(polyline);
-      _polylineIdCounter++;
+      final result = await sessionResult.result;
+
+      result.routes!.asMap().forEach(
+            (i, route) {
+              final time = DateTime.now();
+                _mapObjects.add(
+                  PolylineMapObject(
+                    mapId: MapObjectId('polyline $time'),
+                    polyline: Polyline(points: route.geometry),
+                    strokeColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
+                    strokeWidth: 3,
+                  ),
+                );
+            },
+      );
       notifyListeners();
     }else{
       showSnackBar(context, 'There should be at least two points to draw a polyline');

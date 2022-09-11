@@ -28,6 +28,7 @@ class HomeView extends ConsumerWidget {
 
             onMapCreated: (YandexMapController yandexMapController) async {
               read.mapController = yandexMapController;
+
             },
             onMapTap: (Point point) {
               read.isMarkerEnabled
@@ -82,7 +83,7 @@ class HomeView extends ConsumerWidget {
                 const SizedBox(height: 20),
                 IconButton(
                   onPressed: () async {
-                    read.onFloatingActionButtonPressed(context);
+                    read.onLocationPressed(context);
                   },
                   icon: const Icon(
                     Icons.my_location_outlined,
