@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandexmap/pages/home/viewModel.dart';
@@ -18,7 +19,7 @@ class HomeView extends ConsumerWidget {
         children: [
           YandexMap(
             key: mapKey,
-            mapObjects: watch.markers,
+            mapObjects: watch.mapObjects,
             // nightModeEnabled: true,
             logoAlignment: const MapAlignment(
               horizontal: HorizontalAlignment.right,
@@ -38,7 +39,9 @@ class HomeView extends ConsumerWidget {
                     icon: PlacemarkIcon.single(
                       PlacemarkIconStyle(
                         scale: 0.2,
-                        image: BitmapDescriptor.fromAssetImage('assets/icons/pin.png',),
+                        image: BitmapDescriptor.fromAssetImage(
+                          'assets/icons/pin.png',
+                        ),
                       ),
                     ),
                   ),
@@ -46,28 +49,57 @@ class HomeView extends ConsumerWidget {
                     icon: PlacemarkIcon.single(
                       PlacemarkIconStyle(
                         scale: 0.5,
-                        image: BitmapDescriptor.fromAssetImage('assets/icons/arrow.png',),
+                        image: BitmapDescriptor.fromAssetImage(
+                          'assets/icons/arrow.png',
+                        ),
                       ),
                     ),
                   ),
                   accuracyCircle: view.accuracyCircle.copyWith(
-                    strokeColor: const Color(0xff0960fe),
-                    fillColor: const Color(0xff9f0ace).withOpacity(0.4), //Colors.amberAccent.withOpacity(0.5),
+                    strokeColor: Colors.orange,
+                    fillColor: Colors.amberAccent.withOpacity(0.5),
                   ));
             },
           ),
+
+          Positioned(
+            right: 0.0,
+            bottom: 200,
+            child: IconButton(
+              icon: Icons.draw,
+            ),
+          )
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        elevation: 0.0,
-        backgroundColor: Colors.transparent,
-        child: const Icon(
-          Icons.my_location_outlined,
-          size: 50,
+
+      floatingActionButton: Container(
+        margin: const EdgeInsets.only(left: 30),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              onPressed: () async {
+                read.onFloatingActionButtonPressed(context);
+              },
+              icon: const Icon(
+                Icons.my_location_outlined,
+                size: 50,
+              ),
+            ),
+            IconButton(
+              onPressed: () async {
+                read.drawPolyline(
+                  point1: const Point(latitude: 59.945933, longitude: 30.320045),
+                  point2: const Point(latitude: 61.823618, longitude: 56.823571),
+                );
+              },
+              icon: const Icon(
+                Icons.polyline,
+                size: 50,
+              ),
+            ),
+          ],
         ),
-        onPressed: () async {
-          read.onFloatingActionButtonPressed(context);
-        },
       ),
     );
   }

@@ -8,13 +8,16 @@ final homeChangeNotifier = ChangeNotifierProvider<HomeChangeNotifier>((ref) => H
 class HomeChangeNotifier extends ChangeNotifier {
   /// fields
   late YandexMapController _mapController;
-  final List<MapObject> _markers = [];
+  final List<MapObject> _mapObjects = [];
+  final List<Point> _markersPoints = [];
   int _markerIdCounter = 1;
+  int _polylineIdCounter = 1;
 
   /// getters & setters
   YandexMapController get mapController => _mapController;
-  List<MapObject> get markers => _markers;
+  List<MapObject> get mapObjects => _mapObjects;
   int get markerIdCounter => _markerIdCounter;
+  int get polylineIdCounter => _polylineIdCounter;
 
   set mapController(YandexMapController ctr) {
     _mapController = ctr;
@@ -107,7 +110,8 @@ class HomeChangeNotifier extends ChangeNotifier {
       ),
     );
 
-    markers.add(marker);
+    _mapObjects.add(marker);
+    _markersPoints.add(marker.point);
     _markerIdCounter++;
     notifyListeners();
   }
@@ -132,5 +136,28 @@ class HomeChangeNotifier extends ChangeNotifier {
     //       )
     //   );
     // }
+  }
+
+  Future<void> drawPolyline({required Point point1, required Point point2}) async{
+    final polyline = PolylineMapObject(
+      mapId: MapObjectId('polyline_$polylineIdCounter'),
+      polyline: Polyline(points: [point1, point2]),
+      // polyline: Polyline(points: _markersPoints),
+      strokeColor: Colors.amberAccent,
+      strokeWidth: 7.5,
+      outlineColor: Colors.orange,
+      outlineWidth: 2.0,
+      turnRadius: 10.0,
+      arcApproximationStep: 1.0,
+      gradientLength: 1.0,
+      isInnerOutlineEnabled: true,
+      onTap: (PolylineMapObject self, Point point){
+        mapObjects.removeWhere((obj) => obj.mapId == self.mapId);
+      },
+    );
+
+    _mapObjects.add(polyline);
+    _polylineIdCounter++;
+    notifyListeners();
   }
 }
